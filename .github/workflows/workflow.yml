@@ -47,7 +47,7 @@ jobs:
       id: validate
       run: terraform validate -no-color
       env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE CREDENTIALS }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
