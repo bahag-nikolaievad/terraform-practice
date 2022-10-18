@@ -25,7 +25,7 @@ resource "google_compute_subnetwork" "database" {
   network       = google_compute_network.vpc_network.id
 }
 
-resource "google_compute_subnetwork" "database" {
+resource "google_compute_subnetwork" "database2" {
   name          = "bahag-vpc-database2"
   ip_cidr_range = "10.0.2.0/24"
   region        = var.region
