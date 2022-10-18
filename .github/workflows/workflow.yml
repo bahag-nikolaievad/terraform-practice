@@ -53,14 +53,14 @@ jobs:
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       id: plan
-      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.event_name == 'pull_request'
       run: terraform plan -no-color
       continue-on-error: true
 
     #output multine strings: https://trstringer.com/github-actions-multiline-strings/
     - name: Terraform Plan - clean
       id: cleanplan
-      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.event_name == 'pull_request'
       run: |
         TFPLAN=$(echo "${{ steps.plan.outputs.stdout }}" | awk '/Terraform will perform the following actions|No changes. Infrastructure is up-to-date|No changes. Your infrastructure matches the configuration./,0')
         echo "$TFPLAN"
