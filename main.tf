@@ -57,27 +57,3 @@ resource "google_cloud_run_service" "cloud_run" {
     }
   }
 }
-
-
-provider "google" {
-  project = "PROJECT-ID"
-}
-
-resource "google_cloud_run_service" "default" {
-  name     = "SERVICE"
-  location = "REGION"
-
-  metadata {
-    annotations = {
-      "run.googleapis.com/client-name" = "terraform"
-    }
-  }
-
-  template {
-    spec {
-      containers {
-        image = "gcr.io/PROJECT-ID/IMAGE"
-      }
-    }
-  }
-}
