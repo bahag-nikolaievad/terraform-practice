@@ -40,15 +40,15 @@ resource "google_compute_subnetwork" "database2" {
 # Additionally, he would like 
 # some Terraform example code to deploy the container.
 
-# resource "google_cloud_run_service" "cloud_run" {
-#   name     = "hello-world-cloud-run"
-#   location = var.region
+resource "google_cloud_run_service" "cloud_run" {
+  name     = "hello-world-cloud-run"
+  location = var.region
 
-#   template {
-#     spec {
-#       containers {
-#         image = "us-docker.pkg.dev/cloudrun/container/hello"
-#       }
-#     }
-#   }
-# }
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+}
