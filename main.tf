@@ -31,3 +31,53 @@ resource "google_compute_subnetwork" "database2" {
   region        = var.region
   network       = google_compute_network.vpc_network.id
 }
+
+# Cloud Run
+# A developer comes up to you and asks you 
+# how he can deploy and manage 
+# the Hello-World Docker container 
+# in the GCP service “Cloud Run”. 
+# Additionally, he would like 
+# some Terraform example code to deploy the container.
+
+resource "google_cloud_run_service" "cloud_run" {
+  name = "hello-world-cloud-run"
+  location = var.region
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale" = 1
+        }
+    }
+  }
+}
+
+
+provider "google" {
+    project = "PROJECT-ID"
+}
+
+resource "google_cloud_run_service" "default" {
+    name     = "SERVICE"
+    location = "REGION"
+
+    metadata {
+      annotations = {
+        "run.googleapis.com/client-name" = "terraform"
+      }
+    }
+
+    template {
+      spec {
+        containers {
+          image = "gcr.io/PROJECT-ID/IMAGE"
+        }
+      }
+    }
+ }
