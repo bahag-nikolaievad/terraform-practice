@@ -41,7 +41,7 @@ resource "google_compute_subnetwork" "database2" {
 # some Terraform example code to deploy the container.
 
 resource "google_cloud_run_service" "cloud_run" {
-  name = "hello-world-cloud-run"
+  name     = "hello-world-cloud-run"
   location = var.region
 
   template {
@@ -53,31 +53,31 @@ resource "google_cloud_run_service" "cloud_run" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale" = 1
-        }
+      }
     }
   }
 }
 
 
 provider "google" {
-    project = "PROJECT-ID"
+  project = "PROJECT-ID"
 }
 
 resource "google_cloud_run_service" "default" {
-    name     = "SERVICE"
-    location = "REGION"
+  name     = "SERVICE"
+  location = "REGION"
 
-    metadata {
-      annotations = {
-        "run.googleapis.com/client-name" = "terraform"
+  metadata {
+    annotations = {
+      "run.googleapis.com/client-name" = "terraform"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/PROJECT-ID/IMAGE"
       }
     }
-
-    template {
-      spec {
-        containers {
-          image = "gcr.io/PROJECT-ID/IMAGE"
-        }
-      }
-    }
- }
+  }
+}
