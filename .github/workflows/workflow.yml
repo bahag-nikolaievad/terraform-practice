@@ -6,11 +6,13 @@ on:
     - master
     - main
     - feature
+    - cloud-run
   pull_request:
     branches:
     - master
     - main
     - feature
+    - cloud-run
 
 # Use the concurrency-block to avoid having parallel runs of the same workflow 
 # Further reading: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
