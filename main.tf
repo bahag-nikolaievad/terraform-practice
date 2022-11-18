@@ -43,13 +43,6 @@ resource "google_compute_subnetwork" "database2" {
 resource "google_cloud_run_service" "cloud_run" {
   name     = "hello-world-cloud-run"
   location = var.region
-  project  = var.project
-
-  metadata {
-    annotations = {
-      "run.googleapis.com/client-name" = "terraform"
-    }
-  }
 
   template {
     spec {
