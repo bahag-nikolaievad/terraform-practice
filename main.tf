@@ -43,6 +43,7 @@ resource "google_compute_subnetwork" "database2" {
 resource "google_cloud_run_service" "cloud_run" {
   name     = "hello-world-cloud-run"
   location = var.region
+  project = var.project
 
   metadata {
     annotations = {
@@ -68,7 +69,7 @@ data "google_iam_policy" "noauth" {
 
 resource "google_cloud_run_service_iam_policy" "noauth" {
   location = google_cloud_run_service.location
-  project  = google_cloud_run_service.var.project
+  project  = google_cloud_run_service.project
   service  = google_cloud_run_service.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
