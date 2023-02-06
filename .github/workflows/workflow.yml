@@ -1,20 +1,19 @@
 name: 'Terraform CI'
 
 on:
-workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/workflow.yml"
-      - "src/**"
-      - "**"
-  push:
-    branches:
-      - "main"
-      - "feature"
-    paths:
-      - ".github/workflows/workflow.yml"
-      - "src/**"
-      - "**"
+  workflow_dispatch:
+    pull_request:
+      paths:
+        - ".github/workflows/workflow.yml"
+        - "src/**"
+        - "**"
+    push:
+      branches:
+        - "main"
+      paths:
+        - ".github/workflows/workflow.yml"
+        - "src/**"
+        - "**"
 
 # Use the concurrency-block to avoid having parallel runs of the same workflow 
 # Further reading: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
