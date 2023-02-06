@@ -1,0 +1,4 @@
+ping3
+google-cloud-logging
+python-dotenv
+google-cloud-bigquery

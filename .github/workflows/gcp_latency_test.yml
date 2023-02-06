@@ -1,0 +1,121 @@
+name: "Terraform GCP latency test"
+
+on: 
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/gcp_latency_test.yml"
+      - "latency_test/src/**"
+      - "latency_test/terraform/**"
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/gcp_latency_test.yml"
+      - "latency_test/src/**"
+      - "latency_test/terraform/**"
+
+concurrency:
+  group: concurrency-group_latency_test
+
+jobs:
+  terraform:
+    name: "Terraform"
+    permissions:
+      id-token: "write"
+      contents: "read"
+      pull-requests: "write"
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: latency_test/terraform
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: "auth"
+      name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v0
+      with:
+        workload_identity_provider: "projects/30317345402/locations/global/workloadIdentityPools/github-actions-pool-3ev6/providers/github-actions-provider-3ev6"
+        service_account: "deploy@doit-sandbox-20220613-kbwhxs.iam.gserviceaccount.com"
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.3.x
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'pull_request'
+      run: terraform plan -no-color
+      continue-on-error: true
+
+    - name: Terraform Plan - clean
+      id: cleanplan
+      if: github.event_name == 'pull_request'
+      run: |
+        TFPLAN=$(echo '${{ steps.plan.outputs.stdout }}' | awk '/Terraform will perform the following actions|No changes. Infrastructure is up-to-date|No changes. Your infrastructure matches the configuration./,0')
+        CHANGES=$(echo "$TFPLAN" | grep -E -w 'No changes|module|resource|Plan:')
+        echo -e "#### Terraform Format and Style 🖌${{ steps.fmt.outcome }}\n
+        #### Terraform Initialization ⚙️${{ steps.init.outcome }}\n
+        #### Terraform Plan 📖${{ steps.plan.outcome }}\n
+        #### Terraform Validation 🤖${{ steps.validate.outcome }}\n\n
+        <details><summary>Show Plan</summary>\n\n
+        \`\`\`\n
+        $TFPLAN\n
+        \`\`\`\n
+        </details>\n\n
+        <details><summary>Show Changes only</summary>\n\n
+        \`\`\`\n
+        $CHANGES\n
+        \`\`\`\n
+        </details>\n\n
+        *Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}*" > /tmp/tfplan.out
+
+    - name: Update Pull Request
+      uses: actions/github-script@v6
+      continue-on-error: true
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require("fs").promises;
+          const output = await fs.readFile("/tmp/tfplan.out", "utf8");
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+      # On push to main, build or change infrastructure according to Terraform configuration files
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+    - name: Terraform Apply
+      if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+      run: terraform apply -auto-approve
