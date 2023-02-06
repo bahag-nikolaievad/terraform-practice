@@ -42,7 +42,6 @@ jobs:
       name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v0
       with:
-        workload_identity_provider: "projects/30317345402/locations/global/workloadIdentityPools/github-actions-pool-3ev6/providers/github-actions-provider-3ev6"
         service_account: "deploy@doit-sandbox-20220613-kbwhxs.iam.gserviceaccount.com"
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
