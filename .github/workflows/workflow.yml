@@ -10,6 +10,7 @@ workflow_dispatch:
   push:
     branches:
       - "main"
+      - "feature"
     paths:
       - ".github/workflows/workflow.yml"
       - "src/**"
